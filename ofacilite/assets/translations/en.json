@@ -5,6 +5,7 @@
   "home_contacts": "Contacts",
   "home_health": "Health",
   "home_help": "Help",
+  "home_map": "Map",
   "contacts_title": "Contacts",
   "contacts_tts": "My contacts",
   "contacts_call": "Call",
@@ -47,5 +48,8 @@
   "help_emergencies": "Emergency numbers",
   "help_samu": "SAMU",
   "help_police": "Police",
-  "help_pompiers": "Fire brigade"
+  "help_pompiers": "Fire brigade",
+  "map_title": "Help places",
+  "map_tts": "Map of help places",
+  "map_call": "Call"
 }

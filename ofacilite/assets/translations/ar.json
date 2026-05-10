@@ -5,6 +5,7 @@
   "home_contacts": "جهات الاتصال",
   "home_health": "الصحة",
   "home_help": "مساعدة",
+  "home_map": "خريطة",
   "contacts_title": "جهات الاتصال",
   "contacts_tts": "جهات الاتصال الخاصة بي",
   "contacts_call": "اتصال",
@@ -47,5 +48,8 @@
   "help_emergencies": "أرقام الطوارئ",
   "help_samu": "إسعاف",
   "help_police": "شرطة",
-  "help_pompiers": "إطفاء"
+  "help_pompiers": "إطفاء",
+  "map_title": "أماكن المساعدة",
+  "map_tts": "خريطة أماكن المساعدة",
+  "map_call": "اتصال"
 }

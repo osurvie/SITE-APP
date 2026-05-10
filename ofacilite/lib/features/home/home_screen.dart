@@ -5,7 +5,7 @@ import 'package:ofacilite/main.dart';
 import 'package:ofacilite/features/contacts/contacts_screen.dart';
 import 'package:ofacilite/features/document/document_screen.dart';
 import 'package:ofacilite/features/health/health_screen.dart';
-import 'package:ofacilite/features/help/help_screen.dart';
+import 'package:ofacilite/features/map/map_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -168,10 +168,10 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                           const SizedBox(width: 20),
                           Expanded(
                             child: _BigButton(
-                              icon: Icons.volunteer_activism_rounded,
-                              label: 'home_help'.tr(),
-                              color: const Color(0xFFF57C00),
-                              onTap: () => _navigateTo(const HelpScreen()),
+                              icon: Icons.map_rounded,
+                              label: 'home_map'.tr(),
+                              color: const Color(0xFF00796B),
+                              onTap: () => _navigateTo(const MapScreen()),
                             ),
                           ),
                         ],
