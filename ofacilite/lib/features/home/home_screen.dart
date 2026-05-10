@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -18,6 +20,16 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   final FlutterTts _tts = FlutterTts();
 
   bool _ttsInitialized = false;
+  bool _isDiscovering = false;
+  bool _discoveryCancelled = false;
+  int? _highlightedButton; // 0=Document 1=Contacts 2=Santé 3=Carte
+
+  static const _discoveryKeys = [
+    'home_desc_document',
+    'home_desc_contacts',
+    'home_desc_health',
+    'home_desc_map',
+  ];
 
   @override
   void initState() {
@@ -45,14 +57,16 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
     await _tts.setSpeechRate(0.45);
     await _tts.setVolume(1.0);
     await Future.delayed(const Duration(milliseconds: 800));
-    await _tts.speak('home_question'.tr());
+    if (mounted) await _tts.speak('home_question'.tr());
   }
 
   @override
   void didPopNext() async {
+    _discoveryCancelled = true;
+    if (mounted) setState(() { _isDiscovering = false; _highlightedButton = null; });
     await _tts.stop();
     await Future.delayed(const Duration(milliseconds: 800));
-    await _tts.speak('home_question'.tr());
+    if (mounted) await _tts.speak('home_question'.tr());
   }
 
   @override
@@ -63,14 +77,87 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   }
 
   Future<void> _navigateTo(Widget screen) async {
+    _discoveryCancelled = true;
     await _tts.stop();
     if (!mounted) return;
+    setState(() { _isDiscovering = false; _highlightedButton = null; });
     Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 
-  Future<void> _showLanguagePicker() async {
+  // Attend la fin de l'énoncé TTS via completion/cancel handler.
+  Future<void> _speakAndWait(String text) async {
+    final completer = Completer<void>();
+    
+    _tts.setCompletionHandler(() {
+      if (!completer.isCompleted) completer.complete();
+    });
+    _tts.setCancelHandler(() {
+      if (!completer.isCompleted) completer.complete();
+    });
+    _tts.setErrorHandler((msg) {
+      if (!completer.isCompleted) completer.complete();
+    });
+    
+    await _tts.speak(text);
+    
+    // Timeout de sécurité : 15 secondes max par bouton
+    await completer.future.timeout(
+      const Duration(seconds: 15),
+      onTimeout: () {},
+    );
+  }
+
+  // Lance la visite guidée avec highlight glissant et pauses de 2s.
+  Future<void> _startDiscovery() async {
+    if (_isDiscovering) return;
     await _tts.stop();
     if (!mounted) return;
+    setState(() {
+      _isDiscovering = true;
+      _discoveryCancelled = false;
+      _highlightedButton = null;
+    });
+
+    for (int i = 0; i < _discoveryKeys.length; i++) {
+      if (_discoveryCancelled || !mounted) break;
+      setState(() => _highlightedButton = i);
+      await _speakAndWait(_discoveryKeys[i].tr());
+      if (_discoveryCancelled || !mounted) break;
+      setState(() => _highlightedButton = null);
+      await Future.delayed(const Duration(seconds: 2));
+    }
+
+    _tts.setCompletionHandler(() {});
+    _tts.setCancelHandler(() {});
+    if (mounted) setState(() { _isDiscovering = false; _highlightedButton = null; });
+  }
+
+  // Stoppe la visite guidée : TTS arrêté + highlight effacé immédiatement.
+  Future<void> _stopDiscovery() async {
+    _discoveryCancelled = true;
+    await _tts.stop();
+    if (mounted) setState(() { _isDiscovering = false; _highlightedButton = null; });
+  }
+
+  // Long press : highlight + lecture de la description du bouton pressé.
+  Future<void> _speakButton(int index, String key) async {
+    _discoveryCancelled = true;
+    await _tts.stop();
+    // Cède un tour d'event loop pour laisser le cleanup de la visite s'exécuter.
+    await Future.delayed(Duration.zero);
+    if (!mounted) return;
+    setState(() { _isDiscovering = false; _highlightedButton = index; });
+    await _speakAndWait(key.tr());
+    _tts.setCompletionHandler(() {});
+    _tts.setCancelHandler(() {});
+    if (mounted) setState(() => _highlightedButton = null);
+  }
+
+  Future<void> _showLanguagePicker() async {
+    _discoveryCancelled = true;
+    await _tts.stop();
+    if (!mounted) return;
+    setState(() { _isDiscovering = false; _highlightedButton = null; });
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -114,6 +201,28 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                     ),
                   ),
                   const Spacer(),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: _isDiscovering
+                        ? IconButton(
+                            key: const ValueKey('stop'),
+                            icon: const Icon(
+                              Icons.stop_circle_rounded,
+                              size: 32,
+                              color: Color(0xFFD32F2F),
+                            ),
+                            onPressed: _stopDiscovery,
+                          )
+                        : IconButton(
+                            key: const ValueKey('discover'),
+                            icon: const Icon(
+                              Icons.help_outline_rounded,
+                              size: 32,
+                              color: Color(0xFF1565C0),
+                            ),
+                            onPressed: _startDiscovery,
+                          ),
+                  ),
                   IconButton(
                     icon: const Icon(
                       Icons.language,
@@ -138,7 +247,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                               icon: Icons.description_rounded,
                               label: 'home_document'.tr(),
                               color: const Color(0xFF1976D2),
+                              isHighlighted: _highlightedButton == 0,
                               onTap: () => _navigateTo(const DocumentScreen()),
+                              onLongPress: () => _speakButton(0, 'home_desc_document'),
                             ),
                           ),
                           const SizedBox(width: 20),
@@ -147,7 +258,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                               icon: Icons.contacts_rounded,
                               label: 'home_contacts'.tr(),
                               color: const Color(0xFF388E3C),
+                              isHighlighted: _highlightedButton == 1,
                               onTap: () => _navigateTo(const ContactsScreen()),
+                              onLongPress: () => _speakButton(1, 'home_desc_contacts'),
                             ),
                           ),
                         ],
@@ -162,7 +275,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                               icon: Icons.favorite_rounded,
                               label: 'home_health'.tr(),
                               color: const Color(0xFFD32F2F),
+                              isHighlighted: _highlightedButton == 2,
                               onTap: () => _navigateTo(const HealthScreen()),
+                              onLongPress: () => _speakButton(2, 'home_desc_health'),
                             ),
                           ),
                           const SizedBox(width: 20),
@@ -171,7 +286,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                               icon: Icons.map_rounded,
                               label: 'home_map'.tr(),
                               color: const Color(0xFF00796B),
+                              isHighlighted: _highlightedButton == 3,
                               onTap: () => _navigateTo(const MapScreen()),
+                              onLongPress: () => _speakButton(3, 'home_desc_map'),
                             ),
                           ),
                         ],
@@ -194,17 +311,22 @@ class _BigButton extends StatelessWidget {
     required this.label,
     required this.color,
     required this.onTap,
+    this.onLongPress,
+    this.isHighlighted = false,
   });
 
   final IconData icon;
   final String label;
   final Color color;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+  final bool isHighlighted;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         decoration: BoxDecoration(
           color: color,
@@ -217,20 +339,42 @@ class _BigButton extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 72, color: Colors.white),
-            const SizedBox(height: 16),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, size: 72, color: Colors.white),
+                  const SizedBox(height: 16),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+              AnimatedOpacity(
+                opacity: isHighlighted ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 200),
+                child: ColoredBox(
+                  color: Colors.black.withValues(alpha: 0.30),
+                  child: const Center(
+                    child: Icon(
+                      Icons.volume_up_rounded,
+                      color: Colors.white,
+                      size: 56,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
