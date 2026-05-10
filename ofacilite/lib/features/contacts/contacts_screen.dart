@@ -1,0 +1,320 @@
+import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:ofacilite/core/database/database_provider.dart';
+
+class ContactsScreen extends StatefulWidget {
+  const ContactsScreen({super.key});
+
+  @override
+  State<ContactsScreen> createState() => _ContactsScreenState();
+}
+
+class _ContactsScreenState extends State<ContactsScreen> {
+  final FlutterTts _tts = FlutterTts();
+  final ImagePicker _picker = ImagePicker();
+  List<Contact> _contacts = [];
+  final Map<String, String?> _localPhotos = {};
+  bool _loading = true;
+  bool _permissionDenied = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initTts();
+    _loadContacts();
+  }
+
+  Future<void> _initTts() async {
+    final locale = context.locale.languageCode;
+    final ttsLang = switch (locale) {
+      'ar' => 'ar-SA',
+      'en' => 'en-US',
+      _ => 'fr-FR',
+    };
+    await _tts.setLanguage(ttsLang);
+    await _tts.setSpeechRate(0.45);
+    await Future.delayed(const Duration(milliseconds: 800));
+    await _tts.speak('contacts_tts'.tr());
+  }
+
+  Future<void> _loadContacts() async {
+    final granted = await FlutterContacts.requestPermission(readonly: true);
+    if (!granted) {
+      setState(() {
+        _permissionDenied = true;
+        _loading = false;
+      });
+      return;
+    }
+    final all = await FlutterContacts.getContacts(
+      withProperties: true,
+      withPhoto: true,
+    );
+    final withPhone = all.where((c) => c.phones.isNotEmpty).toList();
+
+    for (final contact in withPhone) {
+      _localPhotos[contact.id] =
+          await appDatabase.getPhotoForContact(contact.id);
+    }
+
+    setState(() {
+      _contacts = withPhone;
+      _loading = false;
+    });
+  }
+
+  Future<void> _call(String number) async {
+    final uri = Uri(scheme: 'tel', path: number);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
+  Future<void> _sendPhoto(Contact contact) async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt, size: 28),
+              title: const Text(
+                'Prendre une photo',
+                style: TextStyle(fontSize: 20),
+              ),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library, size: 28),
+              title: const Text(
+                'Choisir dans la galerie',
+                style: TextStyle(fontSize: 20),
+              ),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (source == null) return;
+
+    final picked = await _picker.pickImage(source: source);
+    if (picked == null) return;
+
+    await Share.shareXFiles(
+      [XFile(picked.path)],
+      text: 'Photo pour ${contact.displayName}',
+    );
+  }
+
+  Future<void> _changePhoto(Contact contact) async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt, size: 28),
+              title: const Text(
+                'Prendre une photo',
+                style: TextStyle(fontSize: 20),
+              ),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library, size: 28),
+              title: const Text(
+                'Choisir dans la galerie',
+                style: TextStyle(fontSize: 20),
+              ),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (source == null) return;
+
+    final picked = await _picker.pickImage(source: source);
+    if (picked == null) return;
+
+    await appDatabase.savePhotoForContact(contact.id, picked.path);
+    setState(() {
+      _localPhotos[contact.id] = picked.path;
+    });
+  }
+
+  @override
+  void dispose() {
+    _tts.stop();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('contacts_title'.tr()),
+        backgroundColor: const Color(0xFF388E3C),
+        foregroundColor: Colors.white,
+      ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_permissionDenied) {
+      return Center(
+        child: Text(
+          'contacts_no_permission'.tr(),
+          style: const TextStyle(fontSize: 20, color: Color(0xFF555555)),
+        ),
+      );
+    }
+    if (_contacts.isEmpty) {
+      return Center(
+        child: Text(
+          'contacts_empty'.tr(),
+          style: const TextStyle(fontSize: 20, color: Color(0xFF555555)),
+        ),
+      );
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      itemCount: _contacts.length,
+      separatorBuilder: (_, __) => const Divider(height: 1),
+      itemBuilder: (_, index) {
+        final contact = _contacts[index];
+        return _ContactTile(
+          contact: contact,
+          localPhotoPath: _localPhotos[contact.id],
+          onCall: _call,
+          onPhoto: _sendPhoto,
+          onChangePhoto: _changePhoto,
+        );
+      },
+    );
+  }
+}
+
+class _ContactTile extends StatelessWidget {
+  const _ContactTile({
+    required this.contact,
+    required this.localPhotoPath,
+    required this.onCall,
+    required this.onPhoto,
+    required this.onChangePhoto,
+  });
+
+  final Contact contact;
+  final String? localPhotoPath;
+  final void Function(String) onCall;
+  final void Function(Contact) onPhoto;
+  final void Function(Contact) onChangePhoto;
+
+  @override
+  Widget build(BuildContext context) {
+    final name = contact.displayName.isNotEmpty ? contact.displayName : '?';
+    final initial = name[0].toUpperCase();
+    final phone = contact.phones.first.number;
+
+    final ImageProvider? avatarImage = localPhotoPath != null
+        ? FileImage(File(localPhotoPath!))
+        : contact.photo != null
+            ? MemoryImage(contact.photo!)
+            : null;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => onChangePhoto(contact),
+            child: Stack(
+              children: [
+                avatarImage != null
+                    ? CircleAvatar(
+                        radius: 32,
+                        backgroundImage: avatarImage,
+                      )
+                    : CircleAvatar(
+                        radius: 32,
+                        backgroundColor: const Color(0xFF388E3C),
+                        child: Text(
+                          initial,
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    padding: const EdgeInsets.all(2),
+                    child: const Icon(
+                      Icons.edit,
+                      size: 14,
+                      color: Color(0xFF555555),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              name,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton.icon(
+            onPressed: () => onCall(phone),
+            icon: const Icon(Icons.phone, size: 22),
+            label: Text('contacts_call'.tr(), style: const TextStyle(fontSize: 16)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF388E3C),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton.icon(
+            onPressed: () => onPhoto(contact),
+            icon: const Icon(Icons.camera_alt, size: 22),
+            label: Text('contacts_photo'.tr(), style: const TextStyle(fontSize: 16)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1976D2),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
