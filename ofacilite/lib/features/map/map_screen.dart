@@ -7,7 +7,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:ofacilite/features/help/help_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class _Place {
@@ -164,19 +163,6 @@ class _MapScreenState extends State<MapScreen> {
         title: Text('map_title'.tr()),
         backgroundColor: const Color(0xFF1565C0),
         foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline_rounded),
-            tooltip: 'home_help'.tr(),
-            onPressed: () {
-              _tts.stop();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const HelpScreen()),
-              );
-            },
-          ),
-        ],
       ),
       body: _places.isEmpty
           ? const Center(child: CircularProgressIndicator())

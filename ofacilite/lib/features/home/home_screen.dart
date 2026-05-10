@@ -7,6 +7,7 @@ import 'package:ofacilite/main.dart';
 import 'package:ofacilite/features/contacts/contacts_screen.dart';
 import 'package:ofacilite/features/document/document_screen.dart';
 import 'package:ofacilite/features/health/health_screen.dart';
+import 'package:ofacilite/features/help/help_screen.dart';
 import 'package:ofacilite/features/map/map_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -216,12 +217,20 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                         : IconButton(
                             key: const ValueKey('discover'),
                             icon: const Icon(
-                              Icons.help_outline_rounded,
+                              Icons.record_voice_over_rounded,
                               size: 32,
                               color: Color(0xFF1565C0),
                             ),
                             onPressed: _startDiscovery,
                           ),
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.volunteer_activism_rounded,
+                      size: 32,
+                      color: Color(0xFF1565C0),
+                    ),
+                    onPressed: () => _navigateTo(const HelpScreen()),
                   ),
                   IconButton(
                     icon: const Icon(
