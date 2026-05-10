@@ -402,8 +402,9 @@ class _HealthScreenState extends State<HealthScreen>
         .write(AppointmentsCompanion(notificationId: Value(baseNotifId)));
 
     final body = '$doctor — $reason';
+    final dayBeforeDate = dateTime.subtract(const Duration(days: 1));
     final dayBefore =
-        DateTime(dateTime.year, dateTime.month, dateTime.day - 1, 18, 0);
+        DateTime(dayBeforeDate.year, dayBeforeDate.month, dayBeforeDate.day, 18, 0);
     await NotificationService.instance.scheduleOnce(
         baseNotifId, 'health_notif_appt_eve'.tr(), body, dayBefore);
     await NotificationService.instance.scheduleOnce(

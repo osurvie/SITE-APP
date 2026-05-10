@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -31,14 +33,18 @@ class NotificationService {
 
   Future<void> init() async {
     tz_data.initializeTimeZones();
-    try {
-      tz.setLocalLocation(tz.getLocation(DateTime.now().timeZoneName));
-    } catch (_) {
-      tz.setLocalLocation(tz.UTC);
-    }
+
+    final String timeZoneName = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timeZoneName));
 
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    await _plugin.initialize(const InitializationSettings(android: androidSettings));
+    await _plugin.initialize(
+      const InitializationSettings(android: androidSettings),
+    );
+
+    await Permission.notification.request();
+
+    debugPrint('[Notif] timezone: ${tz.local.name}');
   }
 
   Future<void> scheduleDaily(
@@ -59,6 +65,7 @@ class NotificationService {
     if (scheduled.isBefore(now)) {
       scheduled = scheduled.add(const Duration(days: 1));
     }
+    debugPrint('[Notif] scheduled at: $scheduled (now: $now)');
     try {
       await _plugin.zonedSchedule(
         id,
@@ -72,7 +79,7 @@ class NotificationService {
             UILocalNotificationDateInterpretation.absoluteTime,
       );
     } catch (e) {
-      debugPrint('[Notifications] scheduleOnce failed: $e');
+      debugPrint('[Notif] scheduleDaily failed: $e');
     }
   }
 
@@ -95,7 +102,7 @@ class NotificationService {
             UILocalNotificationDateInterpretation.absoluteTime,
       );
     } catch (e) {
-      debugPrint('[Notifications] scheduleOnce failed: $e');
+      debugPrint('[Notif] scheduleOnce failed: $e');
     }
   }
 
