@@ -79,7 +79,7 @@
       +       '<div class="site-footer-col">'
       +         '<h4>Navigation</h4>'
       +         '<ul>'
-      +           '<li><a href="' + paths.pages + 'association.html">L\'association</a></li>'
+      +           '<li><a href="' + paths.pages + 'a-propos.html">L\'association</a></li>'
       +           '<li><a href="' + paths.pages + 'planning.html">Événements</a></li>'
       +           '<li><a href="' + paths.pages + 'benevolat.html">Bénévolat</a></li>'
       +           '<li><a href="' + paths.pages + 'mecenat.html">Partenariat</a></li>'
