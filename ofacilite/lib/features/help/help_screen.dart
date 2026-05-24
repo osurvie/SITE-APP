@@ -328,6 +328,7 @@ class _EmergencyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
+      height: 64,
       child: ElevatedButton(
         onPressed: null,
         style: ElevatedButton.styleFrom(
