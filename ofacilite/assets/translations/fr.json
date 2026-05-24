@@ -55,6 +55,7 @@
   "health_notif_appt_soon": "Rendez-vous dans 1 heure",
   "help_title": "Aide",
   "help_tts": "Aide",
+  "help_tts_intro": "Posez une question ou appelez les secours. Appuyez longtemps sur un bouton pour savoir à quoi il sert.",
   "help_tap_to_speak": "Appuyez pour parler",
   "help_listening": "J'écoute…",
   "help_coming_soon": "Fonctionnalité bientôt disponible",
@@ -63,6 +64,10 @@
   "help_samu": "SAMU",
   "help_police": "Police",
   "help_pompiers": "Pompiers",
+  "help_desc_mic": "Appuyer pour poser une question à voix haute. Je vous répondrai.",
+  "help_desc_samu": "Appuyer pour appeler le SAMU, le 15. Pour les urgences médicales.",
+  "help_desc_police": "Appuyer pour appeler la Police, le 17. Pour les urgences de sécurité.",
+  "help_desc_pompiers": "Appuyer pour appeler les Pompiers, le 18. Pour les incendies et accidents.",
   "map_title": "Lieux d'aide",
   "map_tts": "Carte des lieux d'aide",
   "map_call": "Appeler"

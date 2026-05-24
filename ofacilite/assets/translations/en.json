@@ -55,6 +55,7 @@
   "health_notif_appt_soon": "Appointment in 1 hour",
   "help_title": "Help",
   "help_tts": "Help",
+  "help_tts_intro": "Ask a question or call for help. Long press any button to learn what it does.",
   "help_tap_to_speak": "Tap to speak",
   "help_listening": "Listening…",
   "help_coming_soon": "Feature coming soon",
@@ -63,6 +64,10 @@
   "help_samu": "SAMU",
   "help_police": "Police",
   "help_pompiers": "Fire brigade",
+  "help_desc_mic": "Tap to ask a question out loud. I will answer you.",
+  "help_desc_samu": "Tap to call SAMU, dial 15. For medical emergencies.",
+  "help_desc_police": "Tap to call the Police, dial 17. For security emergencies.",
+  "help_desc_pompiers": "Tap to call the Fire Brigade, dial 18. For fires and accidents.",
   "map_title": "Help places",
   "map_tts": "Map of help places",
   "map_call": "Call"

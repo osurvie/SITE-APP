@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
+import 'package:ofacilite/shared/widgets/accessible_button.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -50,7 +51,12 @@ class _HelpScreenState extends State<HelpScreen>
   Future<void> _initTts() async {
     await TtsService.instance.init(context.locale.languageCode);
     await Future.delayed(const Duration(milliseconds: 800));
-    if (mounted) await _tts.speak('help_tts'.tr());
+    if (mounted) await _tts.speak('help_tts_intro'.tr());
+  }
+
+  Future<void> _callNumber(String number) async {
+    final uri = Uri(scheme: 'tel', path: number);
+    if (await canLaunchUrl(uri)) await launchUrl(uri);
   }
 
   Future<void> _initStt() async {
@@ -147,7 +153,8 @@ class _HelpScreenState extends State<HelpScreen>
         children: [
           ScaleTransition(
             scale: _pulseAnimation,
-            child: GestureDetector(
+            child: AccessibleButton(
+              description: 'help_desc_mic'.tr(),
               onTap: _isListening ? null : _startListening,
               child: Container(
                 width: 120,
@@ -263,26 +270,38 @@ class _HelpScreenState extends State<HelpScreen>
             child: Column(
               children: [
                 Expanded(
-                  child: _EmergencyButton(
-                    emoji: '🚑',
-                    label: 'help_samu'.tr(),
-                    number: '15',
+                  child: AccessibleButton(
+                    description: 'help_desc_samu'.tr(),
+                    onTap: () => _callNumber('15'),
+                    child: _EmergencyButton(
+                      emoji: '🚑',
+                      label: 'help_samu'.tr(),
+                      number: '15',
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: _EmergencyButton(
-                    emoji: '🚔',
-                    label: 'help_police'.tr(),
-                    number: '17',
+                  child: AccessibleButton(
+                    description: 'help_desc_police'.tr(),
+                    onTap: () => _callNumber('17'),
+                    child: _EmergencyButton(
+                      emoji: '🚔',
+                      label: 'help_police'.tr(),
+                      number: '17',
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: _EmergencyButton(
-                    emoji: '🚒',
-                    label: 'help_pompiers'.tr(),
-                    number: '18',
+                  child: AccessibleButton(
+                    description: 'help_desc_pompiers'.tr(),
+                    onTap: () => _callNumber('18'),
+                    child: _EmergencyButton(
+                      emoji: '🚒',
+                      label: 'help_pompiers'.tr(),
+                      number: '18',
+                    ),
                   ),
                 ),
               ],
@@ -305,22 +324,17 @@ class _EmergencyButton extends StatelessWidget {
   final String label;
   final String number;
 
-  Future<void> _call() async {
-    final uri = Uri(scheme: 'tel', path: number);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: _call,
+        onPressed: null,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFD32F2F),
           foregroundColor: Colors.white,
+          disabledBackgroundColor: const Color(0xFFD32F2F),
+          disabledForegroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
