@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
+import 'package:ofacilite/shared/widgets/accessible_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ofacilite/core/database/app_database.dart';
 import 'package:ofacilite/core/database/database_provider.dart';
@@ -52,7 +53,7 @@ class _HealthScreenState extends State<HealthScreen>
   Future<void> _initTts() async {
     await TtsService.instance.init(context.locale.languageCode);
     await Future.delayed(const Duration(milliseconds: 800));
-    if (mounted) await _tts.speak('health_tts'.tr());
+    if (mounted) await _tts.speak('health_tts_intro'.tr());
   }
 
   Future<void> _loadData() async {
@@ -441,23 +442,58 @@ class _HealthScreenState extends State<HealthScreen>
           indicatorColor: Colors.white,
           tabs: [
             Tab(
-              icon: const Icon(Icons.medication_rounded),
-              text: 'health_tab_medications'.tr(),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onLongPress: () => TtsService.instance.speak(
+                  'health_desc_tab_med'.tr(),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.medication_rounded),
+                    const SizedBox(height: 2),
+                    Text('health_tab_medications'.tr()),
+                  ],
+                ),
+              ),
             ),
             Tab(
-              icon: const Icon(Icons.calendar_month_rounded),
-              text: 'health_tab_appointments'.tr(),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onLongPress: () => TtsService.instance.speak(
+                  'health_desc_tab_appt'.tr(),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.calendar_month_rounded),
+                    const SizedBox(height: 2),
+                    Text('health_tab_appointments'.tr()),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFFD32F2F),
-        foregroundColor: Colors.white,
-        onPressed: () => _tabController.index == 0
-            ? _showAddMedicationDialog()
-            : _showAddAppointmentDialog(),
-        child: const Icon(Icons.add, size: 32),
+      floatingActionButton: AnimatedBuilder(
+        animation: _tabController,
+        builder: (_, __) => AccessibleButton(
+          description: _tabController.index == 0
+              ? 'health_desc_fab_med'.tr()
+              : 'health_desc_fab_appt'.tr(),
+          onTap: null,
+          child: FloatingActionButton(
+            backgroundColor: const Color(0xFFD32F2F),
+            foregroundColor: Colors.white,
+            onPressed: () => _tabController.index == 0
+                ? _showAddMedicationDialog()
+                : _showAddAppointmentDialog(),
+            child: const Icon(Icons.add, size: 32),
+          ),
+        ),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -499,6 +535,10 @@ class _HealthScreenState extends State<HealthScreen>
         .map((t) =>
             '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}')
         .join(' • ');
+    final timesTts = mwt.times
+        .map((t) =>
+            '${t.hour.toString().padLeft(2, '0')}h${t.minute.toString().padLeft(2, '0')}')
+        .join(', ');
 
     return Dismissible(
       key: Key('med_${mwt.medication.id}'),
@@ -526,6 +566,12 @@ class _HealthScreenState extends State<HealthScreen>
                   style: const TextStyle(
                       fontSize: 16, color: Color(0xFF555555)))
               : null,
+          onLongPress: () => TtsService.instance.speak(
+            'health_desc_med'.tr(namedArgs: {
+              'name': mwt.medication.name,
+              'times': timesTts,
+            }),
+          ),
         ),
       ),
     );
@@ -603,6 +649,14 @@ class _HealthScreenState extends State<HealthScreen>
             ],
           ),
           isThreeLine: true,
+          onLongPress: () => TtsService.instance.speak(
+            'health_desc_appt'.tr(namedArgs: {
+              'doctor': appt.doctorName,
+              'reason': appt.title,
+              'date': dateLabel,
+              'time': timeLabel,
+            }),
+          ),
         ),
       ),
     );
