@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
+import 'package:ofacilite/shared/widgets/accessible_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -34,7 +35,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Future<void> _initTts() async {
     await TtsService.instance.init(context.locale.languageCode);
     await Future.delayed(const Duration(milliseconds: 800));
-    await _tts.speak('contacts_tts'.tr());
+    await _tts.speak('contacts_tts_intro'.tr());
   }
 
   Future<void> _loadContacts() async {
@@ -77,21 +78,29 @@ class _ContactsScreenState extends State<ContactsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt, size: 28),
-              title: const Text(
-                'Prendre une photo',
-                style: TextStyle(fontSize: 20),
-              ),
+            AccessibleButton(
+              description: 'contacts_camera'.tr(),
               onTap: () => Navigator.pop(ctx, ImageSource.camera),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library, size: 28),
-              title: const Text(
-                'Choisir dans la galerie',
-                style: TextStyle(fontSize: 20),
+              child: ListTile(
+                leading: const Icon(Icons.camera_alt, size: 28),
+                title: Text(
+                  'contacts_camera'.tr(),
+                  style: const TextStyle(fontSize: 20),
+                ),
+                onTap: null,
               ),
+            ),
+            AccessibleButton(
+              description: 'contacts_gallery'.tr(),
               onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+              child: ListTile(
+                leading: const Icon(Icons.photo_library, size: 28),
+                title: Text(
+                  'contacts_gallery'.tr(),
+                  style: const TextStyle(fontSize: 20),
+                ),
+                onTap: null,
+              ),
             ),
           ],
         ),
@@ -116,21 +125,29 @@ class _ContactsScreenState extends State<ContactsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt, size: 28),
-              title: const Text(
-                'Prendre une photo',
-                style: TextStyle(fontSize: 20),
-              ),
+            AccessibleButton(
+              description: 'contacts_camera'.tr(),
               onTap: () => Navigator.pop(ctx, ImageSource.camera),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library, size: 28),
-              title: const Text(
-                'Choisir dans la galerie',
-                style: TextStyle(fontSize: 20),
+              child: ListTile(
+                leading: const Icon(Icons.camera_alt, size: 28),
+                title: Text(
+                  'contacts_camera'.tr(),
+                  style: const TextStyle(fontSize: 20),
+                ),
+                onTap: null,
               ),
+            ),
+            AccessibleButton(
+              description: 'contacts_gallery'.tr(),
               onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+              child: ListTile(
+                leading: const Icon(Icons.photo_library, size: 28),
+                title: Text(
+                  'contacts_gallery'.tr(),
+                  style: const TextStyle(fontSize: 20),
+                ),
+                onTap: null,
+              ),
             ),
           ],
         ),
@@ -222,6 +239,7 @@ class _ContactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = contact.displayName.isNotEmpty ? contact.displayName : '?';
+    final firstName = name.split(' ').first;
     final initial = name[0].toUpperCase();
     final phone = contact.phones.first.number;
 
@@ -235,7 +253,8 @@ class _ContactTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
-          GestureDetector(
+          AccessibleButton(
+            description: 'contacts_desc_edit_photo'.tr(namedArgs: {'name': firstName}),
             onTap: () => onChangePhoto(contact),
             child: Stack(
               children: [
@@ -286,25 +305,37 @@ class _ContactTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          ElevatedButton.icon(
-            onPressed: () => onCall(phone),
-            icon: const Icon(Icons.phone, size: 22),
-            label: Text('contacts_call'.tr(), style: const TextStyle(fontSize: 16)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF388E3C),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          AccessibleButton(
+            description: 'contacts_desc_call'.tr(namedArgs: {'name': firstName}),
+            onTap: () => onCall(phone),
+            child: ElevatedButton.icon(
+              onPressed: null,
+              icon: const Icon(Icons.phone, size: 22),
+              label: Text('contacts_call'.tr(), style: const TextStyle(fontSize: 16)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF388E3C),
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: const Color(0xFF388E3C),
+                disabledForegroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              ),
             ),
           ),
           const SizedBox(width: 8),
-          ElevatedButton.icon(
-            onPressed: () => onPhoto(contact),
-            icon: const Icon(Icons.camera_alt, size: 22),
-            label: Text('contacts_photo'.tr(), style: const TextStyle(fontSize: 16)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1976D2),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          AccessibleButton(
+            description: 'contacts_desc_photo'.tr(namedArgs: {'name': firstName}),
+            onTap: () => onPhoto(contact),
+            child: ElevatedButton.icon(
+              onPressed: null,
+              icon: const Icon(Icons.camera_alt, size: 22),
+              label: Text('contacts_photo'.tr(), style: const TextStyle(fontSize: 16)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1976D2),
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: const Color(0xFF1976D2),
+                disabledForegroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              ),
             ),
           ),
         ],
