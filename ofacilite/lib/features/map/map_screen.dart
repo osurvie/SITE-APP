@@ -90,7 +90,7 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _initTts() async {
     await TtsService.instance.init(context.locale.languageCode);
     await Future.delayed(const Duration(milliseconds: 800));
-    if (mounted) await _tts.speak('map_tts'.tr());
+    if (mounted) await _tts.speak('map_tts_intro'.tr());
   }
 
   Future<void> _loadPlaces() async {
@@ -179,6 +179,9 @@ class _MapScreenState extends State<MapScreen> {
                       height: 48,
                       child: GestureDetector(
                         onTap: () => _showPlaceSheet(place),
+                        onLongPress: () => TtsService.instance.speak(
+                          '${place.name}. ${place.address}.',
+                        ),
                         child: Icon(
                           Icons.location_pin,
                           color: _categoryColor(place.category),

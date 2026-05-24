@@ -70,5 +70,6 @@
   "help_desc_pompiers": "Appuyer pour appeler les Pompiers, le 18. Pour les incendies et accidents.",
   "map_title": "Lieux d'aide",
   "map_tts": "Carte des lieux d'aide",
+  "map_tts_intro": "Trouvez les lieux d'aide près de chez vous. Appuyez longtemps sur un marqueur pour connaître le lieu.",
   "map_call": "Appeler"
 }

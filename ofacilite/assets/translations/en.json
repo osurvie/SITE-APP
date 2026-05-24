@@ -70,5 +70,6 @@
   "help_desc_pompiers": "Tap to call the Fire Brigade, dial 18. For fires and accidents.",
   "map_title": "Help places",
   "map_tts": "Map of help places",
+  "map_tts_intro": "Find help locations near you. Long press a marker to learn about the place.",
   "map_call": "Call"
 }
