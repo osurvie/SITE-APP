@@ -80,5 +80,7 @@
   "map_title": "Help places",
   "map_tts": "Map of help places",
   "map_tts_intro": "Find help locations near you. Long press a marker to learn about the place.",
-  "map_call": "Call"
+  "map_call": "Call",
+  "map_directions": "Directions",
+  "map_desc_directions": "Get directions to {name} with Google Maps."
 }

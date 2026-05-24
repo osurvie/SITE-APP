@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
+import 'package:ofacilite/shared/widgets/accessible_button.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -323,6 +324,39 @@ class _PlaceSheet extends StatelessWidget {
                     await launchUrl(uri);
                   }
                 },
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: AccessibleButton(
+                description: 'map_desc_directions'
+                    .tr(namedArgs: {'name': place.name}),
+                onTap: () async {
+                  final uri = Uri.parse(
+                    'https://maps.google.com/maps?daddr=${place.latitude},${place.longitude}',
+                  );
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                },
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.directions_rounded, size: 28),
+                  label: Text(
+                    'map_directions'.tr(),
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1976D2),
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: const Color(0xFF1976D2),
+                    disabledForegroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 0),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                  ),
+                  onPressed: null,
+                ),
               ),
             ),
           ],

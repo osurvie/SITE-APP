@@ -80,5 +80,7 @@
   "map_title": "Lieux d'aide",
   "map_tts": "Carte des lieux d'aide",
   "map_tts_intro": "Trouvez les lieux d'aide près de chez vous. Appuyez longtemps sur un marqueur pour connaître le lieu.",
-  "map_call": "Appeler"
+  "map_call": "Appeler",
+  "map_directions": "Itinéraire",
+  "map_desc_directions": "Obtenir l'itinéraire vers {name} avec Google Maps."
 }
