@@ -60,6 +60,8 @@
   "health_desc_appt": "Appointment with {doctor} for {reason}, on {date} at {time}. Swipe left to delete.",
   "health_desc_tab_med": "Medications tab. List of your medications with their schedule and reminders.",
   "health_desc_tab_appt": "Appointments tab. List of your upcoming medical appointments with reminders.",
+  "notif_med_tts": "It's time to take your {name}.",
+  "notif_appt_tts": "Reminder: {body}.",
   "help_title": "Help",
   "help_tts": "Help",
   "help_tts_intro": "Ask a question or call for help. Long press any button to learn what it does.",

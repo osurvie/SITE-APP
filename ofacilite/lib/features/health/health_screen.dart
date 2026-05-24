@@ -18,7 +18,17 @@ class _MedicationWithTimes {
 }
 
 class HealthScreen extends StatefulWidget {
-  const HealthScreen({super.key});
+  const HealthScreen({
+    super.key,
+    this.initialTab = 0,
+    this.suppressInitTts = false,
+  });
+
+  /// Onglet affiché à l'ouverture : 0 = Médicaments, 1 = Rendez-vous.
+  final int initialTab;
+
+  /// Si true, le TTS de lancement est supprimé (ex. ouverture depuis notif).
+  final bool suppressInitTts;
 
   @override
   State<HealthScreen> createState() => _HealthScreenState();
@@ -37,7 +47,11 @@ class _HealthScreenState extends State<HealthScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTab,
+    );
     _loadData();
   }
 
@@ -51,6 +65,7 @@ class _HealthScreenState extends State<HealthScreen>
   }
 
   Future<void> _initTts() async {
+    if (widget.suppressInitTts) return;
     await TtsService.instance.init(context.locale.languageCode);
     await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) await _tts.speak('health_tts_intro'.tr());

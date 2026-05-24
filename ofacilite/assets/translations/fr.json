@@ -60,6 +60,8 @@
   "health_desc_appt": "Rendez-vous avec {doctor} pour {reason}, le {date} à {time}. Glissez vers la gauche pour supprimer.",
   "health_desc_tab_med": "Onglet Médicaments. Liste de vos médicaments avec leurs horaires de prise et rappels.",
   "health_desc_tab_appt": "Onglet Rendez-vous. Liste de vos rendez-vous médicaux à venir avec rappels.",
+  "notif_med_tts": "C'est l'heure de prendre votre {name}.",
+  "notif_appt_tts": "Rappel : {body}.",
   "help_title": "Aide",
   "help_tts": "Aide",
   "help_tts_intro": "Posez une question ou appelez les secours. Appuyez longtemps sur un bouton pour savoir à quoi il sert.",
