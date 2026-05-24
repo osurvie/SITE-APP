@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:ofacilite/core/services/tts_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,7 +17,7 @@ class ContactsScreen extends StatefulWidget {
 }
 
 class _ContactsScreenState extends State<ContactsScreen> {
-  final FlutterTts _tts = FlutterTts();
+  FlutterTts get _tts => TtsService.instance.tts;
   final ImagePicker _picker = ImagePicker();
   List<Contact> _contacts = [];
   final Map<String, String?> _localPhotos = {};
@@ -31,14 +32,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   Future<void> _initTts() async {
-    final locale = context.locale.languageCode;
-    final ttsLang = switch (locale) {
-      'ar' => 'ar-SA',
-      'en' => 'en-US',
-      _ => 'fr-FR',
-    };
-    await _tts.setLanguage(ttsLang);
-    await _tts.setSpeechRate(0.45);
+    await TtsService.instance.init(context.locale.languageCode);
     await Future.delayed(const Duration(milliseconds: 800));
     await _tts.speak('contacts_tts'.tr());
   }

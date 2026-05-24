@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:ofacilite/core/services/tts_service.dart';
 import 'package:ofacilite/main.dart';
 import 'package:ofacilite/features/contacts/contacts_screen.dart';
 import 'package:ofacilite/features/document/document_screen.dart';
@@ -18,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with RouteAware {
-  final FlutterTts _tts = FlutterTts();
+  FlutterTts get _tts => TtsService.instance.tts;
 
   bool _ttsInitialized = false;
   bool _isDiscovering = false;
@@ -48,15 +49,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   }
 
   Future<void> _initTts() async {
-    final locale = context.locale.languageCode;
-    final ttsLang = switch (locale) {
-      'ar' => 'ar-SA',
-      'en' => 'en-US',
-      _ => 'fr-FR',
-    };
-    await _tts.setLanguage(ttsLang);
-    await _tts.setSpeechRate(0.45);
-    await _tts.setVolume(1.0);
+    await TtsService.instance.init(context.locale.languageCode);
     await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) await _tts.speak('home_question'.tr());
   }
@@ -128,8 +121,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       await Future.delayed(const Duration(seconds: 2));
     }
 
-    _tts.setCompletionHandler(() {});
-    _tts.setCancelHandler(() {});
+    TtsService.instance.resetHandlers();
     if (mounted) setState(() { _isDiscovering = false; _highlightedButton = null; });
   }
 
@@ -149,8 +141,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
     if (!mounted) return;
     setState(() { _isDiscovering = false; _highlightedButton = index; });
     await _speakAndWait(key.tr());
-    _tts.setCompletionHandler(() {});
-    _tts.setCancelHandler(() {});
+    TtsService.instance.resetHandlers();
     if (mounted) setState(() => _highlightedButton = null);
   }
 
@@ -168,12 +159,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
         onLocaleSelected: (locale) async {
           Navigator.pop(context);
           await context.setLocale(locale);
-          final ttsLang = switch (locale.languageCode) {
-            'ar' => 'ar-SA',
-            'en' => 'en-US',
-            _ => 'fr-FR',
-          };
-          await _tts.setLanguage(ttsLang);
+          await TtsService.instance.init(locale.languageCode);
           await Future.delayed(const Duration(milliseconds: 400));
           if (mounted) await _tts.speak('home_question'.tr());
         },

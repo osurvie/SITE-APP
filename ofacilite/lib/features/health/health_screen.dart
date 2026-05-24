@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' show Value, OrderingTerm, ComparableExpr;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:ofacilite/core/services/tts_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ofacilite/core/database/app_database.dart';
 import 'package:ofacilite/core/database/database_provider.dart';
@@ -24,7 +25,7 @@ class HealthScreen extends StatefulWidget {
 
 class _HealthScreenState extends State<HealthScreen>
     with SingleTickerProviderStateMixin {
-  final FlutterTts _tts = FlutterTts();
+  FlutterTts get _tts => TtsService.instance.tts;
   bool _ttsInitialized = false;
 
   late final TabController _tabController;
@@ -49,15 +50,7 @@ class _HealthScreenState extends State<HealthScreen>
   }
 
   Future<void> _initTts() async {
-    final locale = context.locale.languageCode;
-    final ttsLang = switch (locale) {
-      'ar' => 'ar-SA',
-      'en' => 'en-US',
-      _ => 'fr-FR',
-    };
-    await _tts.setLanguage(ttsLang);
-    await _tts.setSpeechRate(0.45);
-    await _tts.setVolume(1.0);
+    await TtsService.instance.init(context.locale.languageCode);
     await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) await _tts.speak('health_tts'.tr());
   }

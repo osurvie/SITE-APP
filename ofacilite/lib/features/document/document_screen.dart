@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:ofacilite/core/services/tts_service.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ofacilite/shared/widgets/accessible_button.dart';
 
 class DocumentScreen extends StatefulWidget {
   const DocumentScreen({super.key});
@@ -13,7 +15,7 @@ class DocumentScreen extends StatefulWidget {
 }
 
 class _DocumentScreenState extends State<DocumentScreen> {
-  final FlutterTts _tts = FlutterTts();
+  FlutterTts get _tts => TtsService.instance.tts;
   final ImagePicker _picker = ImagePicker();
 
   File? _image;
@@ -31,17 +33,9 @@ class _DocumentScreenState extends State<DocumentScreen> {
   }
 
   Future<void> _initTts() async {
-    final locale = context.locale.languageCode;
-    final ttsLang = switch (locale) {
-      'ar' => 'ar-SA',
-      'en' => 'en-US',
-      _ => 'fr-FR',
-    };
-    await _tts.setLanguage(ttsLang);
-    await _tts.setSpeechRate(0.45);
-    await _tts.setVolume(1.0);
+    await TtsService.instance.init(context.locale.languageCode);
     await Future.delayed(const Duration(milliseconds: 800));
-    await _tts.speak('document_tts'.tr());
+    await _tts.speak('document_tts_intro'.tr());
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -112,36 +106,47 @@ class _DocumentScreenState extends State<DocumentScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton.icon(
-              onPressed: () => _pickImage(ImageSource.camera),
-              icon: const Icon(Icons.camera_alt, size: 36),
-              label: Text(
-                'document_take_photo'.tr(),
-                style: const TextStyle(fontSize: 22),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1976D2),
-                foregroundColor: Colors.white,
-                minimumSize: const Size.fromHeight(80),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+            AccessibleButton(
+              description: 'document_desc_take_photo'.tr(),
+              onTap: () => _pickImage(ImageSource.camera),
+              child: ElevatedButton.icon(
+                onPressed: null,
+                icon: const Icon(Icons.camera_alt, size: 36),
+                label: Text(
+                  'document_take_photo'.tr(),
+                  style: const TextStyle(fontSize: 22),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1976D2),
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: const Color(0xFF1976D2),
+                  disabledForegroundColor: Colors.white,
+                  minimumSize: const Size.fromHeight(80),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 24),
-            OutlinedButton.icon(
-              onPressed: () => _pickImage(ImageSource.gallery),
-              icon: const Icon(Icons.photo_library, size: 28),
-              label: Text(
-                'document_gallery'.tr(),
-                style: const TextStyle(fontSize: 18),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF1976D2),
-                minimumSize: const Size.fromHeight(60),
-                side: const BorderSide(color: Color(0xFF1976D2), width: 2),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+            AccessibleButton(
+              description: 'document_desc_gallery'.tr(),
+              onTap: () => _pickImage(ImageSource.gallery),
+              child: OutlinedButton.icon(
+                onPressed: null,
+                icon: const Icon(Icons.photo_library, size: 28),
+                label: Text(
+                  'document_gallery'.tr(),
+                  style: const TextStyle(fontSize: 18),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF1976D2),
+                  disabledForegroundColor: const Color(0xFF1976D2),
+                  minimumSize: const Size.fromHeight(60),
+                  side: const BorderSide(color: Color(0xFF1976D2), width: 2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
             ),
@@ -200,19 +205,25 @@ class _DocumentScreenState extends State<DocumentScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      ElevatedButton.icon(
-                        onPressed: _reset,
-                        icon: const Icon(Icons.refresh, size: 24),
-                        label: Text(
-                          'document_new_photo'.tr(),
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1976D2),
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size.fromHeight(60),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                      AccessibleButton(
+                        description: 'document_desc_new_photo'.tr(),
+                        onTap: _reset,
+                        child: ElevatedButton.icon(
+                          onPressed: null,
+                          icon: const Icon(Icons.refresh, size: 24),
+                          label: Text(
+                            'document_new_photo'.tr(),
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1976D2),
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: const Color(0xFF1976D2),
+                            disabledForegroundColor: Colors.white,
+                            minimumSize: const Size.fromHeight(60),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                           ),
                         ),
                       ),

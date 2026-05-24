@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:ofacilite/core/services/tts_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -62,7 +63,7 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  final FlutterTts _tts = FlutterTts();
+  FlutterTts get _tts => TtsService.instance.tts;
   final MapController _mapController = MapController();
   bool _ttsInitialized = false;
   List<_Place> _places = [];
@@ -87,15 +88,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _initTts() async {
-    final locale = context.locale.languageCode;
-    final ttsLang = switch (locale) {
-      'ar' => 'ar-SA',
-      'en' => 'en-US',
-      _ => 'fr-FR',
-    };
-    await _tts.setLanguage(ttsLang);
-    await _tts.setSpeechRate(0.45);
-    await _tts.setVolume(1.0);
+    await TtsService.instance.init(context.locale.languageCode);
     await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) await _tts.speak('map_tts'.tr());
   }
