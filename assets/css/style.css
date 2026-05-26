@@ -167,9 +167,6 @@ main {
 main section:not(.actions-row) {
   width: calc(100% - 4%);
   margin: 10px auto;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
 }
 
 main section:not(.actions-row) article {
