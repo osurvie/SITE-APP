@@ -1,39 +1,62 @@
-# fastapi-starter
+# Apis
+
+API REST minimaliste avec FastAPI — prête pour la production.
+
+## Prérequis
+
+- Python 3.14+
+- pip
 
 ## Structure
 
 ```
-app/
-├── core/
-│   └── config.py       # Settings (pydantic-settings + .env)
-├── routers/
-│   ├── root.py         # GET /
-│   └── health.py       # GET /health
-├── schemas/
-│   └── common.py       # Response models
-└── main.py             # App entrypoint
-tests/
-└── test_endpoints.py
+application/
+├── app/
+│   ├── core/
+│   │   └── config.py       # Settings (.env via pydantic-settings)
+│   ├── routers/
+│   │   ├── root.py         # GET /
+│   │   └── health.py       # GET /health
+│   ├── schemas/
+│   │   └── common.py       # Response models Pydantic
+│   └── main.py             # Entrypoint FastAPI
+├── tests/
+│   └── test_endpoints.py
+├── .env.example
+├── pyproject.toml          # Config pyproject (résolution du module `app` avec le pythonpath depuis la racine)
+├── requirements.txt
+└── requirements-dev.txt
 ```
 
-## Setup
+## Installation
 
 ```bash
-cp .env.example .env
+# 1. Se placer à la racine du projet
+cd application/apis/01
+
+# 2. (Optionnel) Créer un virtualenv
+python -m venv .venv
+source .venv/bin/activate        # Linux / macOS
+.venv\Scripts\activate           # Windows (PowerShell)
+
+# 3. Installer les dépendances
 pip install -r requirements-dev.txt
+
+# 4. Configurer l'environnement
+cp .env.example .env
 ```
 
-## Run
+## Lancer le serveur
 
 ```bash
+fastapi dev
+# ou via uvicorn
 uvicorn app.main:app --reload
 ```
 
-## Test
+L'API est disponible sur : /docs /redoc
 
-```bash
-pytest
-```
+> Le Swagger UI (`/docs`) est accessible uniquement si `DEBUG=true` dans le `.env`.
 
 ## Endpoints
 
@@ -42,4 +65,10 @@ pytest
 | GET    | `/`       | Root         |
 | GET    | `/health` | Health check |
 
-> Swagger UI available at `/docs` only when `DEBUG=true`.
+## Lancer les tests
+
+```bash
+cd application/apis  # racine du projet
+pytest               # lance tous les tests
+pytest -v            # mode verbose (recommandé)
+```
