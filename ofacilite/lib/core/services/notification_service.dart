@@ -15,6 +15,11 @@ class NotificationService {
 
   // ── Notification tap handler ────────────────────────────────────────────────
 
+  /// Payload de la notification qui a lancé l'app depuis l'état fermé.
+  /// Renseigné dans [init] via getNotificationAppLaunchDetails, consommé
+  /// une seule fois par HomeScreen au démarrage.
+  static Map<String, dynamic>? launchPayload;
+
   /// Callback appelé par [onNotificationTap] avec le type et le contenu
   /// décodés du payload JSON. À brancher depuis main.dart avant [init].
   static void Function(String type, String extra)? _tapHandler;
@@ -76,6 +81,20 @@ class NotificationService {
     );
 
     await Permission.notification.request();
+
+    // Détecte si l'app a été lancée depuis l'état fermé via un tap de notif.
+    final launchDetails = await _plugin.getNotificationAppLaunchDetails();
+    if (launchDetails?.didNotificationLaunchApp == true) {
+      final raw = launchDetails?.notificationResponse?.payload;
+      if (raw != null && raw.isNotEmpty) {
+        try {
+          launchPayload = jsonDecode(raw) as Map<String, dynamic>;
+          debugPrint('[Notif] cold-start payload: $launchPayload');
+        } catch (e) {
+          debugPrint('[Notif] launchPayload parse error: $e');
+        }
+      }
+    }
 
     debugPrint('[Notif] timezone: ${tz.local.name}');
   }

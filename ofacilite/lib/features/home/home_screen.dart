@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:ofacilite/core/services/notification_service.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
 import 'package:ofacilite/main.dart';
 import 'package:ofacilite/features/contacts/contacts_screen.dart';
@@ -50,6 +51,35 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
 
   Future<void> _initTts() async {
     await TtsService.instance.init(context.locale.languageCode);
+
+    // Cas cold-start : l'app a été ouverte depuis une notification fermée.
+    final payload = NotificationService.launchPayload;
+    if (payload != null) {
+      NotificationService.launchPayload = null; // consommé une seule fois
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (!mounted) return;
+
+      final type = payload['type'] as String? ?? '';
+      final extra = type == 'medication'
+          ? (payload['name'] as String? ?? '')
+          : (payload['body'] as String? ?? '');
+      final tab = type == 'medication' ? 0 : 1;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => HealthScreen(initialTab: tab, suppressInitTts: true),
+        ),
+      );
+
+      await Future.delayed(const Duration(milliseconds: 300));
+      final text = type == 'medication'
+          ? 'notif_med_tts'.tr(namedArgs: {'name': extra})
+          : 'notif_appt_tts'.tr(namedArgs: {'body': extra});
+      await TtsService.instance.speak(text);
+      return;
+    }
+
     await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) await _tts.speak('home_question'.tr());
   }
