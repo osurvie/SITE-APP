@@ -6,5 +6,5 @@ router = APIRouter(tags=["root"])
 
 
 @router.get("/", response_model=RootResponse)
-def root() -> RootResponse:
+async def root() -> RootResponse:
     return RootResponse(message="Welcome to the API", version=settings.APP_VERSION)

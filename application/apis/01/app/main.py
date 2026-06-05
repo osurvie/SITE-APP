@@ -1,5 +1,5 @@
 from fastapi import FastAPI, logger
-from app.routers import health, root
+from app.routers import health, root, chat
 from app.core.config import settings
 
 app = FastAPI(
@@ -11,3 +11,5 @@ app = FastAPI(
 
 app.include_router(root.router)
 app.include_router(health.router)
+app.include_router(chat.router)
+
