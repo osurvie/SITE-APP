@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
+import 'package:ofacilite/core/theme/app_theme.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ofacilite/shared/widgets/accessible_button.dart';
@@ -92,8 +93,8 @@ class _DocumentScreenState extends State<DocumentScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('document_title'.tr()),
-        backgroundColor: const Color(0xFF1976D2),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.dark,
+        foregroundColor: AppColors.white,
       ),
       body: _image == null ? _buildPicker() : _buildResult(),
     );
@@ -117,10 +118,10 @@ class _DocumentScreenState extends State<DocumentScreen> {
                   style: const TextStyle(fontSize: 22),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1976D2),
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: const Color(0xFF1976D2),
-                  disabledForegroundColor: Colors.white,
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.dark,
+                  disabledBackgroundColor: AppColors.primary,
+                  disabledForegroundColor: AppColors.dark,
                   minimumSize: const Size.fromHeight(80),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -140,10 +141,10 @@ class _DocumentScreenState extends State<DocumentScreen> {
                   style: const TextStyle(fontSize: 18),
                 ),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF1976D2),
-                  disabledForegroundColor: const Color(0xFF1976D2),
+                  foregroundColor: AppColors.primary,
+                  disabledForegroundColor: AppColors.primary,
                   minimumSize: const Size.fromHeight(60),
-                  side: const BorderSide(color: Color(0xFF1976D2), width: 2),
+                  side: const BorderSide(color: AppColors.primary, width: 2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -171,7 +172,7 @@ class _DocumentScreenState extends State<DocumentScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const CircularProgressIndicator(
-                        color: Color(0xFF1976D2),
+                        color: AppColors.primary,
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -192,10 +193,10 @@ class _DocumentScreenState extends State<DocumentScreen> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF0F4FF),
+                          color: AppColors.cream,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: const Color(0xFF1976D2),
+                            color: AppColors.primary,
                             width: 1.5,
                           ),
                         ),
@@ -216,10 +217,10 @@ class _DocumentScreenState extends State<DocumentScreen> {
                             style: const TextStyle(fontSize: 18),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1976D2),
-                            foregroundColor: Colors.white,
-                            disabledBackgroundColor: const Color(0xFF1976D2),
-                            disabledForegroundColor: Colors.white,
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: AppColors.dark,
+                            disabledBackgroundColor: AppColors.primary,
+                            disabledForegroundColor: AppColors.dark,
                             minimumSize: const Size.fromHeight(60),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),

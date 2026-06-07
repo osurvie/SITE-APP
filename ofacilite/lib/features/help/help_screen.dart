@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
+import 'package:ofacilite/core/theme/app_theme.dart';
 import 'package:ofacilite/shared/widgets/accessible_button.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -126,8 +127,8 @@ class _HelpScreenState extends State<HelpScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text('help_title'.tr()),
-        backgroundColor: const Color(0xFFF57C00),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.dark,
+        foregroundColor: AppColors.white,
       ),
       body: Column(
         children: [
@@ -163,12 +164,12 @@ class _HelpScreenState extends State<HelpScreen>
                   shape: BoxShape.circle,
                   color: _isListening
                       ? const Color(0xFFD32F2F)
-                      : const Color(0xFFF57C00),
+                      : AppColors.primary,
                   boxShadow: [
                     BoxShadow(
                       color: (_isListening
                               ? const Color(0xFFD32F2F)
-                              : const Color(0xFFF57C00))
+                              : AppColors.primary)
                           .withOpacity(0.4),
                       blurRadius: 20,
                       spreadRadius: 4,
@@ -203,10 +204,10 @@ class _HelpScreenState extends State<HelpScreen>
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF3E0),
+                color: AppColors.cream,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: const Color(0xFFF57C00),
+                  color: AppColors.primary,
                   width: 1.5,
                 ),
               ),
@@ -238,8 +239,8 @@ class _HelpScreenState extends State<HelpScreen>
                   horizontal: 24,
                   vertical: 12,
                 ),
-                foregroundColor: const Color(0xFFF57C00),
-                side: const BorderSide(color: Color(0xFFF57C00), width: 1.5),
+                foregroundColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.primary, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

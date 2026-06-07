@@ -4,6 +4,7 @@ import 'package:ofacilite/core/app_navigator.dart';
 import 'package:ofacilite/core/services/notification_service.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
 import 'package:ofacilite/features/health/health_screen.dart';
+import 'package:ofacilite/core/theme/app_theme.dart';
 import 'package:ofacilite/features/home/home_screen.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
@@ -74,10 +75,7 @@ class OFaciliteApp extends StatelessWidget {
       supportedLocales: context.supportedLocales,
       locale: context.locale,
       navigatorKey: navigatorKey,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0)),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
       navigatorObservers: [routeObserver],
       home: const HomeScreen(),
     );

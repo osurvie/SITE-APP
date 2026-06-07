@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
+import 'package:ofacilite/core/theme/app_theme.dart';
 import 'package:ofacilite/shared/widgets/accessible_button.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
@@ -155,8 +156,8 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('map_title'.tr()),
-        backgroundColor: const Color(0xFF1565C0),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.dark,
+        foregroundColor: AppColors.white,
       ),
       body: _places.isEmpty
           ? const Center(child: CircularProgressIndicator())
@@ -201,7 +202,7 @@ class _MapScreenState extends State<MapScreen> {
                         height: 22,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1565C0),
+                            color: AppColors.dark,
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.white, width: 3),
                             boxShadow: const [
@@ -312,8 +313,8 @@ class _PlaceSheet extends StatelessWidget {
                       fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: color,
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.dark,
+                  foregroundColor: AppColors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
@@ -346,10 +347,10 @@ class _PlaceSheet extends StatelessWidget {
                         fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1976D2),
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: const Color(0xFF1976D2),
-                    disabledForegroundColor: Colors.white,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.dark,
+                    disabledBackgroundColor: AppColors.primary,
+                    disabledForegroundColor: AppColors.dark,
                     minimumSize: const Size(double.infinity, 0),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(

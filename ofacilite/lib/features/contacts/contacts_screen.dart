@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
+import 'package:ofacilite/core/theme/app_theme.dart';
 import 'package:ofacilite/shared/widgets/accessible_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
@@ -176,8 +177,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('contacts_title'.tr()),
-        backgroundColor: const Color(0xFF388E3C),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.dark,
+        foregroundColor: AppColors.white,
       ),
       body: _buildBody(),
     );
@@ -265,7 +266,7 @@ class _ContactTile extends StatelessWidget {
                       )
                     : CircleAvatar(
                         radius: 32,
-                        backgroundColor: const Color(0xFF388E3C),
+                        backgroundColor: AppColors.primary,
                         child: Text(
                           initial,
                           style: const TextStyle(
@@ -313,10 +314,10 @@ class _ContactTile extends StatelessWidget {
               icon: const Icon(Icons.phone, size: 22),
               label: Text('contacts_call'.tr(), style: const TextStyle(fontSize: 16)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF388E3C),
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: const Color(0xFF388E3C),
-                disabledForegroundColor: Colors.white,
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.dark,
+                disabledBackgroundColor: AppColors.primary,
+                disabledForegroundColor: AppColors.dark,
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               ),
             ),
@@ -330,10 +331,10 @@ class _ContactTile extends StatelessWidget {
               icon: const Icon(Icons.camera_alt, size: 22),
               label: Text('contacts_photo'.tr(), style: const TextStyle(fontSize: 16)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1976D2),
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: const Color(0xFF1976D2),
-                disabledForegroundColor: Colors.white,
+                backgroundColor: AppColors.dark,
+                foregroundColor: AppColors.white,
+                disabledBackgroundColor: AppColors.dark,
+                disabledForegroundColor: AppColors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               ),
             ),

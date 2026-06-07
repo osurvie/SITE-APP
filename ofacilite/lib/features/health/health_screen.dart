@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
+import 'package:ofacilite/core/theme/app_theme.dart';
 import 'package:ofacilite/shared/widgets/accessible_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ofacilite/core/database/app_database.dart';
@@ -206,7 +207,7 @@ class _HealthScreenState extends State<HealthScreen>
                     child: Text(
                       'health_photo_selected'.tr(),
                       style: const TextStyle(
-                          color: Color(0xFF388E3C), fontSize: 14),
+                          color: AppColors.primary, fontSize: 14),
                     ),
                   ),
               ],
@@ -219,8 +220,8 @@ class _HealthScreenState extends State<HealthScreen>
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD32F2F),
-                  foregroundColor: Colors.white),
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.dark),
               onPressed: () async {
                 final name = nameController.text.trim();
                 if (name.isEmpty) return;
@@ -370,8 +371,8 @@ class _HealthScreenState extends State<HealthScreen>
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD32F2F),
-                  foregroundColor: Colors.white),
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.dark),
               onPressed: () async {
                 final reason = reasonController.text.trim();
                 final doctor = doctorController.text.trim();
@@ -448,8 +449,8 @@ class _HealthScreenState extends State<HealthScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text('health_title'.tr()),
-        backgroundColor: const Color(0xFFD32F2F),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.dark,
+        foregroundColor: AppColors.white,
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.white,
@@ -501,8 +502,8 @@ class _HealthScreenState extends State<HealthScreen>
               : 'health_desc_fab_appt'.tr(),
           onTap: null,
           child: FloatingActionButton(
-            backgroundColor: const Color(0xFFD32F2F),
-            foregroundColor: Colors.white,
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.dark,
             onPressed: () => _tabController.index == 0
                 ? _showAddMedicationDialog()
                 : _showAddAppointmentDialog(),
@@ -529,7 +530,7 @@ class _HealthScreenState extends State<HealthScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.medication_rounded,
-                size: 72, color: Color(0xFFD32F2F)),
+                size: 72, color: AppColors.primary),
             const SizedBox(height: 16),
             Text('health_no_medications'.tr(),
                 style: const TextStyle(fontSize: 20, color: Color(0xFF888888)),
@@ -599,7 +600,7 @@ class _HealthScreenState extends State<HealthScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.calendar_month_rounded,
-                size: 72, color: Color(0xFFD32F2F)),
+                size: 72, color: AppColors.primary),
             const SizedBox(height: 16),
             Text('health_no_appointments'.tr(),
                 style: const TextStyle(fontSize: 20, color: Color(0xFF888888)),
@@ -641,9 +642,9 @@ class _HealthScreenState extends State<HealthScreen>
               const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           leading: const CircleAvatar(
             radius: 28,
-            backgroundColor: Color(0xFFD32F2F),
+            backgroundColor: AppColors.primary,
             child: Icon(Icons.calendar_month_rounded,
-                size: 28, color: Colors.white),
+                size: 28, color: AppColors.dark),
           ),
           title: Text(appt.doctorName,
               style:
@@ -659,7 +660,7 @@ class _HealthScreenState extends State<HealthScreen>
                 style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFFD32F2F)),
+                    color: AppColors.dark),
               ),
             ],
           ),
@@ -693,8 +694,8 @@ class _MedicationAvatar extends StatelessWidget {
     }
     return const CircleAvatar(
       radius: 28,
-      backgroundColor: Color(0xFFD32F2F),
-      child: Icon(Icons.medication_rounded, size: 28, color: Colors.white),
+      backgroundColor: AppColors.primary,
+      child: Icon(Icons.medication_rounded, size: 28, color: AppColors.dark),
     );
   }
 }

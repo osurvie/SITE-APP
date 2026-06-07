@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:ofacilite/core/services/notification_service.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
+import 'package:ofacilite/core/theme/app_theme.dart';
 import 'package:ofacilite/main.dart';
 import 'package:ofacilite/features/contacts/contacts_screen.dart';
 import 'package:ofacilite/features/document/document_screen.dart';
@@ -200,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FF),
+      backgroundColor: AppColors.cream,
       body: SafeArea(
         child: Column(
           children: [
@@ -214,7 +215,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1565C0),
+                      color: AppColors.primary,
                     ),
                   ),
                   const Spacer(),
@@ -232,27 +233,30 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                           )
                         : IconButton(
                             key: const ValueKey('discover'),
+                            color: AppColors.dark,
                             icon: const Icon(
                               Icons.record_voice_over_rounded,
                               size: 32,
-                              color: Color(0xFF1565C0),
+                              color: AppColors.dark,
                             ),
                             onPressed: _startDiscovery,
                           ),
                   ),
                   IconButton(
+                    color: AppColors.dark,
                     icon: const Icon(
                       Icons.volunteer_activism_rounded,
                       size: 32,
-                      color: Color(0xFF1565C0),
+                      color: AppColors.dark,
                     ),
                     onPressed: () => _navigateTo(const HelpScreen()),
                   ),
                   IconButton(
+                    color: AppColors.dark,
                     icon: const Icon(
                       Icons.language,
                       size: 32,
-                      color: Color(0xFF1565C0),
+                      color: AppColors.dark,
                     ),
                     onPressed: _showLanguagePicker,
                   ),
@@ -271,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             child: _BigButton(
                               icon: Icons.description_rounded,
                               label: 'home_document'.tr(),
-                              color: const Color(0xFF1976D2),
+                              color: AppColors.dark,
                               isHighlighted: _highlightedButton == 0,
                               onTap: () => _navigateTo(const DocumentScreen()),
                               onLongPress: () => _speakButton(0, 'home_desc_document'),
@@ -282,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             child: _BigButton(
                               icon: Icons.contacts_rounded,
                               label: 'home_contacts'.tr(),
-                              color: const Color(0xFF388E3C),
+                              color: AppColors.dark,
                               isHighlighted: _highlightedButton == 1,
                               onTap: () => _navigateTo(const ContactsScreen()),
                               onLongPress: () => _speakButton(1, 'home_desc_contacts'),
@@ -299,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             child: _BigButton(
                               icon: Icons.favorite_rounded,
                               label: 'home_health'.tr(),
-                              color: const Color(0xFFD32F2F),
+                              color: AppColors.dark,
                               isHighlighted: _highlightedButton == 2,
                               onTap: () => _navigateTo(const HealthScreen()),
                               onLongPress: () => _speakButton(2, 'home_desc_health'),
@@ -310,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             child: _BigButton(
                               icon: Icons.map_rounded,
                               label: 'home_map'.tr(),
-                              color: const Color(0xFF00796B),
+                              color: AppColors.dark,
                               isHighlighted: _highlightedButton == 3,
                               onTap: () => _navigateTo(const MapScreen()),
                               onLongPress: () => _speakButton(3, 'home_desc_map'),
