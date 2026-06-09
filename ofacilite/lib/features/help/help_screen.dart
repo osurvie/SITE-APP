@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:ofacilite/core/services/api_service.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
 import 'package:ofacilite/core/theme/app_theme.dart';
 import 'package:ofacilite/shared/widgets/accessible_button.dart';
@@ -23,6 +24,10 @@ class _HelpScreenState extends State<HelpScreen>
   bool _sttAvailable = false;
   bool _isListening = false;
   String _transcribedText = '';
+
+  String? _answer;
+  bool _isAsking = false;
+  bool _answerFailed = false;
 
   late final AnimationController _pulseController;
   late final Animation<double> _pulseAnimation;
@@ -92,6 +97,9 @@ class _HelpScreenState extends State<HelpScreen>
     setState(() {
       _transcribedText = '';
       _isListening = true;
+      _answer = null;
+      _isAsking = false;
+      _answerFailed = false;
     });
     _pulseController.repeat(reverse: true);
     await _stt.listen(
@@ -104,11 +112,41 @@ class _HelpScreenState extends State<HelpScreen>
     );
   }
 
+  Future<void> _askQuestion() async {
+    if (_transcribedText.isEmpty || _isAsking) return;
+    final question = _transcribedText;
+    final lang = context.locale.languageCode;
+    setState(() {
+      _isAsking = true;
+      _answer = null;
+      _answerFailed = false;
+    });
+    final answer = await ApiService.instance.ask(question, lang);
+    if (!mounted) return;
+    if (answer != null) {
+      setState(() {
+        _answer = answer;
+        _isAsking = false;
+      });
+      await _tts.stop();
+      await _tts.speak(answer);
+    } else {
+      setState(() {
+        _isAsking = false;
+        _answerFailed = true;
+      });
+    }
+  }
+
   void _reset() {
     _stt.cancel();
+    _tts.stop();
     setState(() {
       _transcribedText = '';
       _isListening = false;
+      _answer = null;
+      _isAsking = false;
+      _answerFailed = false;
     });
     _pulseController.stop();
     _pulseController.reset();
@@ -147,107 +185,237 @@ class _HelpScreenState extends State<HelpScreen>
   }
 
   Widget _buildVoiceSection() {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ScaleTransition(
-            scale: _pulseAnimation,
-            child: AccessibleButton(
-              description: 'help_desc_mic'.tr(),
-              onTap: _isListening ? null : _startListening,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
+          child: Column(
+            mainAxisAlignment: _transcribedText.isEmpty
+                ? MainAxisAlignment.center
+                : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ScaleTransition(
+                scale: _pulseAnimation,
+                child: AccessibleButton(
+                  description: 'help_desc_mic'.tr(),
+                  onTap: (_isListening || _isAsking) ? null : _startListening,
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _isListening
+                          ? const Color(0xFFD32F2F)
+                          : AppColors.primary,
+                      boxShadow: [
+                        BoxShadow(
+                          color: (_isListening
+                                  ? const Color(0xFFD32F2F)
+                                  : AppColors.primary)
+                              .withOpacity(0.4),
+                          blurRadius: 20,
+                          spreadRadius: 4,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      _isListening ? Icons.mic : Icons.mic_none_rounded,
+                      size: 64,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                _isListening
+                    ? 'help_listening'.tr()
+                    : 'help_tap_to_speak'.tr(),
+                style: TextStyle(
+                  fontSize: 18,
                   color: _isListening
                       ? const Color(0xFFD32F2F)
-                      : AppColors.primary,
-                  boxShadow: [
-                    BoxShadow(
-                      color: (_isListening
-                              ? const Color(0xFFD32F2F)
-                              : AppColors.primary)
-                          .withOpacity(0.4),
-                      blurRadius: 20,
-                      spreadRadius: 4,
+                      : const Color(0xFF888888),
+                  fontWeight:
+                      _isListening ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+              if (_transcribedText.isNotEmpty) ...[
+                const SizedBox(height: 24),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.cream,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: AppColors.primary,
+                      width: 1.5,
                     ),
-                  ],
+                  ),
+                  child: Text(
+                    _transcribedText,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: Color(0xFF333333),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                child: Icon(
-                  _isListening ? Icons.mic : Icons.mic_none_rounded,
-                  size: 64,
-                  color: Colors.white,
+                const SizedBox(height: 12),
+
+                // Bouton "Obtenir une réponse"
+                if (!_isAsking && _answer == null && !_answerFailed)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _askQuestion,
+                      icon: const Icon(Icons.auto_awesome_rounded, size: 22),
+                      label: Text(
+                        'help_ask_button'.tr(),
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.dark,
+                        minimumSize: const Size.fromHeight(56),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Indicateur de chargement
+                if (_isAsking) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                          strokeWidth: 2.5,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'help_asking'.tr(),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Color(0xFF555555),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                ],
+
+                // Réponse de l'IA
+                if (_answer != null) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F5E9),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFF4CAF50),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Text(
+                      _answer!,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Color(0xFF1B5E20),
+                        height: 1.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF8E1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFFFB300),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      'help_disclaimer'.tr(),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF6D4C41),
+                        height: 1.45,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+
+                // Erreur / hors ligne
+                if (_answerFailed)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.cloud_off,
+                          size: 16,
+                          color: Color(0xFF999999),
+                        ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            'help_answer_error'.tr(),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF999999),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: _isAsking ? null : _reset,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: Text(
+                    'help_retry'.tr(),
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary, width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              ],
+            ],
           ),
-          const SizedBox(height: 20),
-          Text(
-            _isListening
-                ? 'help_listening'.tr()
-                : 'help_tap_to_speak'.tr(),
-            style: TextStyle(
-              fontSize: 18,
-              color: _isListening
-                  ? const Color(0xFFD32F2F)
-                  : const Color(0xFF888888),
-              fontWeight:
-                  _isListening ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-          if (_transcribedText.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.cream,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: AppColors.primary,
-                  width: 1.5,
-                ),
-              ),
-              child: Text(
-                _transcribedText,
-                style: const TextStyle(
-                  fontSize: 20,
-                  color: Color(0xFF333333),
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'help_coming_soon'.tr(),
-              style: const TextStyle(fontSize: 16, color: Color(0xFF888888)),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: _reset,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(
-                'help_retry'.tr(),
-                style: const TextStyle(fontSize: 18),
-              ),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary, width: 1.5),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }

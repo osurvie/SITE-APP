@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:ofacilite/core/services/api_service.dart';
 import 'package:ofacilite/core/services/tts_service.dart';
 import 'package:ofacilite/core/theme/app_theme.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
@@ -21,8 +23,15 @@ class _DocumentScreenState extends State<DocumentScreen> {
 
   File? _image;
   String? _extractedText;
+  String? _summary;
   bool _analyzing = false;
+  bool _summarizing = false;
+  bool _summaryFailed = false;
   bool _ttsInitialized = false;
+  Timer? _dotsTimer;
+  int _dotCount = 1;
+
+  String get _dots => _dotCount == 1 ? '.' : _dotCount == 2 ? '..' : '...';
 
   @override
   void didChangeDependencies() {
@@ -39,6 +48,23 @@ class _DocumentScreenState extends State<DocumentScreen> {
     await _tts.speak('document_tts_intro'.tr());
   }
 
+  void _startDotsAnimation() {
+    _dotsTimer?.cancel();
+    _dotCount = 1;
+    _dotsTimer = Timer.periodic(const Duration(milliseconds: 600), (_) {
+      if (mounted) {
+        setState(() {
+          _dotCount = _dotCount == 3 ? 1 : _dotCount + 1;
+        });
+      }
+    });
+  }
+
+  void _stopDotsAnimation() {
+    _dotsTimer?.cancel();
+    _dotsTimer = null;
+  }
+
   Future<void> _pickImage(ImageSource source) async {
     final picked = await _picker.pickImage(source: source);
     if (picked == null) return;
@@ -46,8 +72,12 @@ class _DocumentScreenState extends State<DocumentScreen> {
     setState(() {
       _image = File(picked.path);
       _extractedText = null;
+      _summary = null;
+      _summarizing = false;
+      _summaryFailed = false;
       _analyzing = true;
     });
+    _startDotsAnimation();
 
     await _analyzeImage(picked.path);
   }
@@ -59,31 +89,72 @@ class _DocumentScreenState extends State<DocumentScreen> {
         InputImage.fromFilePath(path),
       );
       final text = result.text.trim();
-      final display = text.isEmpty ? 'document_no_text'.tr() : text;
+
+      if (text.isEmpty) {
+        _stopDotsAnimation();
+        setState(() {
+          _extractedText = 'document_no_text'.tr();
+          _analyzing = false;
+        });
+        await _tts.stop();
+        await _tts.speak(_extractedText!);
+        return;
+      }
 
       setState(() {
-        _extractedText = display;
+        _extractedText = text;
         _analyzing = false;
+        _summarizing = true;
       });
 
-      await _tts.stop();
-      await _tts.speak(display);
+      await _fetchSummary(text);
     } finally {
       recognizer.close();
     }
   }
 
+  Future<void> _fetchSummary(String text) async {
+    final lang = context.locale.languageCode;
+    final summary = await ApiService.instance.summarize(text, lang);
+
+    await _tts.stop();
+    if (!mounted) return;
+
+    if (summary != null) {
+      _stopDotsAnimation();
+      setState(() {
+        _summary = summary;
+        _summarizing = false;
+        _summaryFailed = false;
+      });
+      await _tts.speak(summary);
+    } else {
+      _stopDotsAnimation();
+      setState(() {
+        _summary = null;
+        _summarizing = false;
+        _summaryFailed = true;
+      });
+      await _tts.speak(text);
+    }
+  }
+
   void _reset() {
+    _stopDotsAnimation();
     _tts.stop();
     setState(() {
       _image = null;
       _extractedText = null;
+      _summary = null;
       _analyzing = false;
+      _summarizing = false;
+      _summaryFailed = false;
     });
   }
 
   @override
   void dispose() {
+    _dotsTimer?.cancel();
     _tts.stop();
     super.dispose();
   }
@@ -158,6 +229,7 @@ class _DocumentScreenState extends State<DocumentScreen> {
   }
 
   Widget _buildResult() {
+    final isLoading = _analyzing || _summarizing;
     return Column(
       children: [
         SizedBox(
@@ -166,23 +238,34 @@ class _DocumentScreenState extends State<DocumentScreen> {
           child: Image.file(_image!, fit: BoxFit.cover),
         ),
         Expanded(
-          child: _analyzing
+          child: isLoading
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'document_analyzing'.tr(),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Color(0xFF555555),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          width: 72,
+                          height: 72,
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                            strokeWidth: 5,
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 32),
+                        Text(
+                          'document_loading_label'.tr() + _dots,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            height: 1.4,
+                            color: Color(0xFF333333),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 )
               : SingleChildScrollView(
@@ -190,21 +273,68 @@ class _DocumentScreenState extends State<DocumentScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: AppColors.cream,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.primary,
-                            width: 1.5,
+                      if (_summary != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColors.cream,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppColors.primary,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Text(
+                            _summary!,
+                            style: const TextStyle(fontSize: 18, height: 1.6),
                           ),
                         ),
-                        child: Text(
+                        const SizedBox(height: 16),
+                        Text(
                           _extractedText ?? '',
-                          style: const TextStyle(fontSize: 18, height: 1.6),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            height: 1.5,
+                            color: Color(0xFF999999),
+                          ),
                         ),
-                      ),
+                      ] else ...[
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColors.cream,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppColors.primary,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Text(
+                            _extractedText ?? '',
+                            style: const TextStyle(fontSize: 18, height: 1.6),
+                          ),
+                        ),
+                        if (_summaryFailed) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.cloud_off,
+                                size: 14,
+                                color: Color(0xFFBBBBBB),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'document_summary_offline'.tr(),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFFBBBBBB),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
                       const SizedBox(height: 24),
                       AccessibleButton(
                         description: 'document_desc_new_photo'.tr(),
