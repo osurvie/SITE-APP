@@ -1,0 +1,82 @@
+﻿﻿<!DOCTYPE html>
+<html lang="fr">
+
+<!-- Mirrored from osurvie.fr/ovie.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 08 May 2026 18:13:39 GMT -->
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>O’Vie</title>
+
+<meta name="description" content="O’Vie : projets de solidarité internationale (accès à l’eau, éducation, orphelinats) portés par O’SURVIE. Une action pour la dignité humaine, ici et ailleurs." />
+
+<link rel="stylesheet" href="../../assets/css/style.css" />
+<link rel="stylesheet" href="../../assets/css/actions/ovie.css" />
+</head>
+
+<body>
+<div id="site-nav-mount"></div>
+
+
+
+<h1>O’Vie</h1>
+
+<div class="intro-text">
+Parce que l'accès à l'eau potable, à l’éducation ou à des conditions de vie décentes ne devrait jamais dépendre d’un lieu de naissance.
+</div>
+
+<div class="description-text">
+Nous accompagnons des initiatives concrètes : construction de puits, soutien aux orphelines, partenariats locaux.
+</div>
+
+<div class="quote">
+"Ce puits, c’est la vie."<br>
+<strong>– Les enfants de Madagascar vous remercient en chantant</strong>
+</div>
+
+<div class="carousel-container">
+  <div class="carousel" id="carousel">
+    <div class="carousel-slide">
+      <video src="../../assets/videos/vid-puit-madagascar.mp4" autoplay muted loop playsinline></video>
+    </div>
+  </div>
+
+  <button class="carousel-btn prev" onclick="prevSlide()">❮</button>
+  <button class="carousel-btn next" onclick="nextSlide()">❯</button>
+
+  <div class="caption" id="caption">
+    l'eau source de vie et d'espoir, un droit pour tous
+  </div>
+</div>
+
+<button class="join-btn">Rejoignez-nous</button>
+
+<script>
+const slides = document.querySelectorAll('.carousel-slide');
+const carousel = document.getElementById('carousel');
+let currentIndex = 0;
+
+function updateCarousel() {
+  carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+}
+
+function nextSlide() {
+  currentIndex = (currentIndex + 1) % slides.length;
+  updateCarousel();
+}
+
+function prevSlide() {
+  currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+  updateCarousel();
+}
+
+updateCarousel();
+</script>
+
+
+
+<div id="site-footer-mount"></div>
+<script src="../../assets/js/components.js"></script>
+</body>
+
+<!-- Mirrored from osurvie.fr/ovie.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 08 May 2026 18:13:39 GMT -->
+</html>

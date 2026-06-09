@@ -1,0 +1,21 @@
+
+services:
+  ollama:
+    image: ollama/ollama:rocm
+    container_name: ollama
+    restart: unless-stopped
+    devices:
+      - "/dev/kfd"
+      - "/dev/dri"
+    group_add:
+      - "991"  # render
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_IGPU_ENABLE=1
+      - HSA_OVERRIDE_GFX_VERSION=11.0.0
+    ports:
+      - "11434:11434"
+
+volumes:
+  ollama_models:
