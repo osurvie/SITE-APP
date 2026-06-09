@@ -51,3 +51,6 @@ build/
 uploads/
 staticfiles/
 .python-version
+
+# API config (contains private tunnel URLs — use api_config.example.json instead)
+ofacilite/assets/config/api_config.json
