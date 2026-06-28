@@ -621,7 +621,7 @@ h2 {
 /* --------- NOUVEAUX STYLES POUR LA GRILLE D’ACTIVITÉS --------- */
 .activities-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   max-width: 1200px;
   margin: 40px auto;
@@ -1795,7 +1795,7 @@ html body .carousel-container {
 }
 
 html body .caption {
-  background: rgba(58, 45, 32, 0.85) !important;
+  background: var(--c-text);
   color: var(--c-white) !important;
   font-family: 'Montserrat', sans-serif !important;
   font-weight: 600;
@@ -1837,7 +1837,6 @@ html body .join-btn {
   border: none !important;
   border-radius: 999px !important;
   cursor: pointer;
-  margin: 28px auto !important;
   text-align: center;
   text-decoration: none;
   box-shadow: 0 4px 14px rgba(106, 78, 62, 0.18) !important;
@@ -1897,4 +1896,15 @@ html body footer.site-footer {
   margin-bottom: 0 !important;
   align-self: stretch;
   box-sizing: border-box;
+}
+
+/* CTA proche du media des pages actions, sans faire partie de la card */
+html body > .carousel-container:has(+ .join-btn) {
+  margin-bottom: 20px !important;
+}
+
+html body > .carousel-container + .join-btn,
+html body > .wells-grid + .join-btn {
+  margin-top: 0 !important;
+  margin-bottom: 40px !important;
 }

@@ -42,6 +42,7 @@
       text-align: center;
     }
 
+
     /* --- Texte d’introduction et description --- */
     .intro-text, .description-text {
       max-width: 720px;
@@ -105,7 +106,6 @@
       max-height: 100%;
       object-fit: cover;
       border-radius: 14px;
-      box-shadow: 0 3px 14px rgba(124, 83, 55, 0.4);
       display: block;
     }
 
@@ -156,7 +156,6 @@
     }
 
     .join-btn {
-      margin-top: 30px;
       padding: 12px 24px;
       background-color: #7c5337;
       color: #f8f1e9;
