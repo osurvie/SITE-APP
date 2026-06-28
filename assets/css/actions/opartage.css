@@ -108,6 +108,7 @@
     .caption {
       position: absolute;
       bottom: 0;
+      left: 0;
       width: 100%;
       background: rgba(160, 82, 45, 0.75);
       color: #fffaf0;
@@ -115,7 +116,6 @@
       padding: 12px 20px;
       font-size: 1.1rem;
       border-radius: 0 0 14px 14px;
-      box-shadow: 0 -2px 8px rgba(160, 82, 45, 0.6);
       user-select: none;
       height: 48px;
       display: flex;
